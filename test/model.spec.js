@@ -7,33 +7,33 @@ describe('model.flatten(tree, options)', () => {
 	test('should convert an object tree into an array of nodes ready to be added', () => {
 		let nodes = model.flatten({
 			name: 'root',
-			type: 'branch',
+			nodeType: 'branch',
 			children: [
 				{
 					name: 'branch1',
-					type: 'branch',	
+					nodeType: 'branch',	
 					children: [
 						{
-							type: 'leaf',
+							nodeType: 'leaf',
 							name: 'leaf11',
 						},
 						{
-							type: 'leaf',
+							nodeType: 'leaf',
 							name: 'leaf12'
 						}
 					]
 				},
 				{
 					name: 'branch2',
-					type: 'branch',
+					nodeType: 'branch',
 					children: [
 						{
-							type: 'branch',
+							nodeType: 'branch',
 							name: 'branch21',
 							children: [],
 						},
 						{
-							type: 'leaf',
+							nodeType: 'leaf',
 							name: 'leaf22'
 						}
 					],
