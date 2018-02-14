@@ -2,7 +2,6 @@
 
 const tree = require('../')
 const { model } = tree
-const freeze = require('deep-freeze')
 
 describe('addNode(state, node)', () => {
 	test('adding one by one', () => {

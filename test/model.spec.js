@@ -3,8 +3,8 @@
 const tree = require('../')
 const { model } = tree
 
-describe('model.fromObject', () => {
-	test('fromObject(parentId, tree)', () => {
+describe('model.flatten(tree, options)', () => {
+	test('should convert an object tree into an array of nodes ready to be added', () => {
 		let nodes = model.flatten({
 			name: 'root',
 			type: 'branch',

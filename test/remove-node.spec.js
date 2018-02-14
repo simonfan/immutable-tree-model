@@ -68,9 +68,6 @@ describe('removeNode(state, nodeId)', () => {
 
 		let state = removeNode(D.state, D.treeNodes[0].id)
 
-
-		console.log(tree.getRoot(D.state))
-
 		expect(getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[0].id)
 		expect(state.byId[D.treeNodes[0].id]).toBeUndefined()
 		expect(getAllNodeIds(state)).toHaveLength(8)

@@ -13,5 +13,9 @@
   },
   "dependencies": {
     "uuid": "^3.2.1"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "coverage"
   }
 }
