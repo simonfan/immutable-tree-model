@@ -1,6 +1,4 @@
-import uuid from 'uuid'
-
-import { minArity } from './auxiliary'
+import { generateId, minArity } from './auxiliary'
 
 const TRAILING_SLASH_RE = /\/$/
 const trimTrailingSlash = (str) => {
@@ -18,7 +16,7 @@ export const root = (nodeRootPath, spec) => ({
 	...spec,
 	nodeRootPath: trimTrailingSlash(nodeRootPath),
 	nodeType: 'branch',
-	id: uuid.v4(),
+	id: generateId(),
 	childIds: [],
 	isRoot: true,
 })
@@ -34,7 +32,7 @@ export const branch = minArity(2, (parentId, nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'branch',
-	id: uuid.v4(),
+	id: generateId(),
 	childIds: [],
 	parentId: parentId,
 }))
@@ -50,7 +48,7 @@ export const leaf = minArity(2, (parentId, nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'leaf',
-	id: uuid.v4(),
+	id: generateId(),
 	parentId: parentId,
 }))
 

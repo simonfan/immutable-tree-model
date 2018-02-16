@@ -1,3 +1,8 @@
+let ID_COUNTER = 0
+export const generateId = () => {
+	// ID_COUNTER += 1
+	return ++ID_COUNTER
+}
 
 // unused
 export const scopeState = (property, fn) => {

@@ -10,7 +10,7 @@ describe('model.root(spec)', () => {
 		})
 
 		expect(root).toEqual({
-			id: expect.any(String),
+			id: expect.any(Number),
 			nodeRootPath: 'path/to/root',
 			nodeType: 'branch',
 			childIds: [],
@@ -25,7 +25,7 @@ describe('model.root(spec)', () => {
 		})
 
 		expect(root).toEqual({
-			id: expect.any(String),
+			id: expect.any(Number),
 			nodeRootPath: 'path/to/root',
 			nodeType: 'branch',
 			childIds: [],
@@ -42,7 +42,7 @@ describe('model.leaf(parentId, nodePathName, spec)', () => {
 		})
 		
 		expect(leaf).toEqual({
-			id: expect.any(String),
+			id: expect.any(Number),
 			parentId: 'parent-id-123',
 			nodeType: 'leaf',
 			nodePathName: 'leaf name',
@@ -64,7 +64,7 @@ describe('model.branch(parentId, nodePathName, spec)', () => {
 		})
 		
 		expect(branch).toEqual({
-			id: expect.any(String),
+			id: expect.any(Number),
 			parentId: 'parent-id-123',
 			nodeType: 'branch',
 			nodePathName: 'branch name',

@@ -18,9 +18,7 @@
     "babelify": "^8.0.0",
     "jest": "^22.2.1"
   },
-  "dependencies": {
-    "uuid": "^3.2.1"
-  },
+  "dependencies": {},
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage"
