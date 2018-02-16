@@ -1,25 +1,34 @@
-const uuid = require('uuid')
+import uuid from 'uuid'
 
-const root = (spec) => ({
+const TRAILING_SLASH_RE = /\/$/
+const trimTrailingSlash = (str) => {
+	return typeof str === 'string' ?
+		str.replace(TRAILING_SLASH_RE, '') : undefined
+}
+
+const root = (nodeRootPath, spec) => ({
 	...spec,
+	nodeRootPath: trimTrailingSlash(nodeRootPath),
 	nodeType: 'branch',
-	id: spec.id || uuid.v4(),
+	id: uuid.v4(),
 	childIds: [],
 	isRoot: true,
 })
 
-const branch = (parentId, spec) => ({
+const branch = (parentId, nodePathName, spec) => ({
 	...spec,
+	nodePathName,
 	nodeType: 'branch',
-	id: spec.id || uuid.v4(),
+	id: uuid.v4(),
 	childIds: [],
 	parentId: parentId,
 })
 
-const leaf = (parentId, spec) => ({
+const leaf = (parentId, nodePathName, spec) => ({
 	...spec,
+	nodePathName,
 	nodeType: 'leaf',
-	id: spec.id || uuid.v4(),
+	id: uuid.v4(),
 	parentId: parentId,
 })
 
@@ -29,11 +38,12 @@ const FLATTEN_DEFAULT_OPTIONS = {
 }
 
 const flatten = (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
-	const { children, ...noChildren } = obj
+	const { children, nodePathName, nodeRootPath, ...spec } = obj
 	let currentNode = options.parentId ?
-		branch(options.parentId, noChildren) : root(noChildren)
+		branch(options.parentId, nodePathName, spec) : root(nodeRootPath, spec)
 
 	return children.reduce((acc, childObj) => {
+		const { nodePathName: childName, ...childSpec } = childObj
 
 		switch (childObj.nodeType) {
 			case 'branch':
@@ -45,7 +55,7 @@ const flatten = (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
 					})
 				]
 			case 'leaf':
-				return [...acc, leaf(currentNode.id, childObj)]
+				return [...acc, leaf(currentNode.id, childName, childObj)]
 			default: 
 				throw new Error(`Invalid node nodeType '${childObj.nodeType}'`)
 		}

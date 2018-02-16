@@ -1,16 +1,23 @@
-const {
+import {
 	computeProperty,
 	deleteProperty,
 	deleteProperties,
 	arrayRemoveItem
-} = require('./auxiliary')
-const model = require('./model')
-const { getNode, getDescendantIds } = require('./get')
+} from './auxiliary'
+import model from './model'
+import { getNode, getDescendantIds } from './get'
 
-const initialize = (root) => {
-	root = root || model.root({})
-
+const defaultState = (state) => {
 	return {
+		...state,
+		rootId: null,
+		byId: {}
+	}
+}
+
+const setRoot = (state, root) => {
+	return {
+		...state,
 		rootId: root.id,
 		byId: {
 			[root.id]: root,
@@ -95,9 +102,10 @@ const moveNode = (state, nodeId, targetParentId) => {
 }
 
 module.exports = {
-	initialize,
+	setRoot,
 	addNode,
 	addNodes,
 	removeNode,
-	model
+	model,
+	defaultState
 }

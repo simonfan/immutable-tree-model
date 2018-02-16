@@ -1,6 +1,6 @@
 'use strict'
 
-const tree = require('../')
+const tree = require('../src')
 const { model, removeNode } = tree
 const { getNode, getNodes, getDescendantIds, getRootId, getAllNodeIds } = tree
 
@@ -54,7 +54,7 @@ beforeEach(() => {
 
 	let [rootNode, ...treeNodes] = model.flatten(treeData)
 
-	D.state = tree.initialize(rootNode)
+	D.state = tree.setRoot(tree.defaultState(), rootNode)
 	D.state = treeNodes.reduce((state, node) => {
 		return tree.addNode(state, node)
 	}, D.state)

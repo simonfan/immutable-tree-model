@@ -1,24 +1,16 @@
 'use strict'
 
-const tree = require('../')
+const tree = require('../src')
 const { model } = tree
 
 describe('addNode(state, node)', () => {
 	test('adding one by one', () => {
-		let rootNode = model.root({
-			name: 'root node'
-		})
-		let state = tree.initialize(rootNode)
+		let rootNode = model.root()
+		let state = tree.setRoot(tree.defaultState(), rootNode)
 
-		let node1 = model.leaf(rootNode.id, {
-			name: 'node 1',
-		})
-		let node2 = model.branch(rootNode.id, {
-			name: 'node 2',
-		})
-		let node21 = model.branch(node2.id, {
-			name: 'node 21',
-		})
+		let node1 = model.leaf(rootNode.id, 'node 1')
+		let node2 = model.branch(rootNode.id, 'node 2')
+		let node21 = model.branch(node2.id, 'node 21')
 
 		state = tree.addNode(state, node1)
 		expect(state).toEqual({

@@ -1,3 +1,5 @@
+import { deleteProperties } from './auxiliary'
+
 const _pipe = (...fns) => {
 	return (state, arg) => fns.reduce((res, fn) => {
 		return fn(state, res)
@@ -65,6 +67,40 @@ const getAllNodeIds = (state) => {
 }
 const getAllNodes = _pipe(getAllNodeIds, getNodes)
 
+
+const getTree = (state, nodeId) => {
+	let node = getNode(state, nodeId)
+
+
+	if (node.nodeType === 'branch') {
+		node = {
+			...node,
+			children: getChildren(state, nodeId).map(childNode => getTree(state, childNode.id))
+		}
+	}
+
+	return deleteProperties(node, ['childIds', 'parentId'])
+}
+
+const getPath = (state, nodeId) => {
+	let node = getNode(state, nodeId)
+
+	if (node.isRoot) {
+		return node.nodeRootPath
+	} else {
+		let pathNodes = getAncestors(state, nodeId)
+		let root = pathNodes.pop()
+
+		return root.nodeRootPath + '/' + pathNodes.reduce((p, ancestor) => {
+			return ancestor.nodePathName + '/' + p
+		}, node.nodePathName)
+	}
+}
+
+const getNodeByPath = (state, nodePath) => {
+
+}
+
 module.exports = {
 	getNode,
 	getNodes,
@@ -79,5 +115,7 @@ module.exports = {
 	getAllNodeIds,
 	getAllNodes,
 	getAncestorIds,
-	getAncestors
+	getAncestors,
+	getTree,
+	getPath,
 }
