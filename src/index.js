@@ -1,6 +1,6 @@
-import set from './set'
-import get from './get'
-import model from './model'
+import * as set from './set'
+import * as get from './get'
+import * as model from './model'
 
 module.exports = {
 	...set,

@@ -1,4 +1,4 @@
-import { deleteProperties } from './auxiliary'
+import { deleteProperties, strictArity } from './auxiliary'
 
 const _pipe = (...fns) => {
 	return (state, arg) => fns.reduce((res, fn) => {
@@ -6,7 +6,13 @@ const _pipe = (...fns) => {
 	}, arg)
 }
 
-const getNode = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getNode = strictArity((state, nodeId) => {
 	let node = state.byId[nodeId]
 	
 	if (!node) {
@@ -14,36 +20,72 @@ const getNode = (state, nodeId) => {
 	}
 
 	return node
-}
+})
 
-const getNodes = (state, nodeIds) => {
+/**
+ * [description]
+ * @param  {[type]} state   [description]
+ * @param  {[type]} nodeIds [description]
+ * @return {[type]}         [description]
+ */
+export const getNodes = strictArity((state, nodeIds) => {
 	return nodeIds.map(id => getNode(state, id))
-}
+})
 
-const getChildIds = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getChildIds = strictArity((state, nodeId) => {
 	return getNode(state, nodeId).childIds
-}
-const getChildren = _pipe(getChildIds, getNodes)
+})
+export const getChildren = _pipe(getChildIds, getNodes)
 
-const getIndex = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getIndex = strictArity((state, nodeId) => {
 	return getParent(state, nodeId).childIds.indexOf(nodeId)
-}
+})
 
-const getParentId = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getParentId = strictArity((state, nodeId) => {
 	return getNode(state, nodeId).parentId
-}
-const getParent = _pipe(getParentId, getNode)
+})
+export const getParent = _pipe(getParentId, getNode)
 
-const getDescendantIds = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getDescendantIds = strictArity((state, nodeId) => {
 	return getChildIds(state, nodeId).reduce((acc, childId) => {
 		return getNode(state, childId).nodeType === 'branch' ?
 			[...acc, childId, ...getDescendantIds(state, childId)] :
 			[...acc, childId]
 	}, [])
-}
-const getDescendants = _pipe(getDescendantIds, getNodes)
+})
+export const getDescendants = _pipe(getDescendantIds, getNodes)
 
-const getAncestorIds = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getAncestorIds = strictArity((state, nodeId) => {
 	let ids = []
 	let parentId = getNode(state, nodeId).parentId
 
@@ -54,21 +96,36 @@ const getAncestorIds = (state, nodeId) => {
 	}
 
 	return ids
-}
-const getAncestors = _pipe(getAncestorIds, getNodes)
+})
+export const getAncestors = _pipe(getAncestorIds, getNodes)
 
-const getRootId = (state) => {
+/**
+ * [description]
+ * @param  {[type]} state [description]
+ * @return {[type]}       [description]
+ */
+export const getRootId = strictArity((state) => {
 	return state.rootId
-}
-const getRoot = _pipe(getRootId, getNode)
+})
+export const getRoot = _pipe(getRootId, getNode)
 
-const getAllNodeIds = (state) => {
+/**
+ * [description]
+ * @param  {[type]} state [description]
+ * @return {[type]}       [description]
+ */
+export const getAllNodeIds = strictArity((state) => {
 	return Object.keys(state.byId)
-}
-const getAllNodes = _pipe(getAllNodeIds, getNodes)
+})
+export const getAllNodes = _pipe(getAllNodeIds, getNodes)
 
-
-const getTree = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getTree = strictArity((state, nodeId) => {
 	let node = getNode(state, nodeId)
 
 
@@ -80,9 +137,15 @@ const getTree = (state, nodeId) => {
 	}
 
 	return deleteProperties(node, ['childIds', 'parentId'])
-}
+})
 
-const getPath = (state, nodeId) => {
+/**
+ * [description]
+ * @param  {[type]} state  [description]
+ * @param  {[type]} nodeId [description]
+ * @return {[type]}        [description]
+ */
+export const getPath = strictArity((state, nodeId) => {
 	let node = getNode(state, nodeId)
 
 	if (node.isRoot) {
@@ -95,27 +158,14 @@ const getPath = (state, nodeId) => {
 			return ancestor.nodePathName + '/' + p
 		}, node.nodePathName)
 	}
-}
+})
 
-const getNodeByPath = (state, nodePath) => {
+/**
+ * [description]
+ * @param  {[type]} state    [description]
+ * @param  {[type]} nodePath [description]
+ * @return {[type]}          [description]
+ */
+export const getNodeByPath = strictArity((state, nodePath) => {
 
-}
-
-module.exports = {
-	getNode,
-	getNodes,
-	getChildIds,
-	getChildren,
-	getParentId,
-	getParent,
-	getDescendantIds,
-	getDescendants,
-	getRootId,
-	getRoot,
-	getAllNodeIds,
-	getAllNodes,
-	getAncestorIds,
-	getAncestors,
-	getTree,
-	getPath,
-}
+})

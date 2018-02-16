@@ -2,12 +2,16 @@ import {
 	computeProperty,
 	deleteProperty,
 	deleteProperties,
-	arrayRemoveItem
+	arrayRemoveItem,
+	strictArity
 } from './auxiliary'
 import model from './model'
-import { getNode, getDescendantIds } from './get'
+import { getNode, getDescendantIds, getChildren } from './get'
 
-const defaultState = (state) => {
+/**
+ * 
+ */
+export const defaultState = (state) => {
 	return {
 		...state,
 		rootId: null,
@@ -15,7 +19,10 @@ const defaultState = (state) => {
 	}
 }
 
-const setRoot = (state, root) => {
+/**
+ * Sets the root
+ */
+export const setRoot = strictArity((state, root) => {
 	return {
 		...state,
 		rootId: root.id,
@@ -23,11 +30,20 @@ const setRoot = (state, root) => {
 			[root.id]: root,
 		},
 	}
-}
+})
 
-const addNode = (state, node) => {
+/**
+ * Adds a node to the tree.
+ * The node must have already been formatted by the model
+ */
+export const addNode = strictArity((state, node) => {
 	const { id, parentId } = node
 	let parentNode = getNode(state, parentId)
+	let siblings = getChildren(state, parentId)
+
+	if (siblings.some(s => s.nodePathName === node.nodePathName)) {
+		throw new Error(`Duplicated nodePathName '${node.nodePathName}'`)
+	}
 
 	return computeProperty(state, 'byId', (byId) => {
 		return {
@@ -42,15 +58,21 @@ const addNode = (state, node) => {
 			}
 		}
 	})
-}
+})
 
-const addNodes = (state, nodes) => {
+/**
+ * 
+ */
+export const addNodes = strictArity((state, nodes) => {
 	return nodes.reduce((state, node) => {
 		return addNode(state, node)
 	}, state)
-}
+})
 
-const removeNode = (state, nodeId) => {
+/**
+ * 
+ */
+export const removeNode = strictArity((state, nodeId) => {
 	let node = getNode(state, nodeId)
 
 	if (node.isRoot) {
@@ -70,9 +92,12 @@ const removeNode = (state, nodeId) => {
 			}
 		}, [...descendantIds, nodeId])
 	})
-}
+})
 
-const moveNode = (state, nodeId, targetParentId) => {
+/**
+ * 
+ */
+export const moveNode = strictArity((state, nodeId, targetParentId) => {
 	let node = getNode(state, nodeId)
 
 	if (node.isRoot) {
@@ -99,13 +124,4 @@ const moveNode = (state, nodeId, targetParentId) => {
 			}
 		}
 	})
-}
-
-module.exports = {
-	setRoot,
-	addNode,
-	addNodes,
-	removeNode,
-	model,
-	defaultState
-}
+})

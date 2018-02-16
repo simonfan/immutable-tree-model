@@ -4,6 +4,13 @@ const tree = require('../src')
 const { model } = tree
 
 describe('addNode(state, node)', () => {
+	test('should require strict arity of 2', () => {
+
+		expect(() => {
+			tree.addNode()
+		}).toThrow('Insufficient args: requires 2 but got 0')
+	})
+
 	test('adding one by one', () => {
 		let rootNode = model.root()
 		let state = tree.setRoot(tree.defaultState(), rootNode)
@@ -53,5 +60,19 @@ describe('addNode(state, node)', () => {
 				[node21.id]: node21,
 			}
 		})
+	})
+
+	test('should throw error when attempting to add a node with repeated name to the same parent', () => {
+		let rootNode = model.root()
+		let state = tree.setRoot(tree.defaultState(), rootNode)
+
+		let node1 = model.leaf(rootNode.id, 'sameNodeName')
+		let node2 = model.branch(rootNode.id, 'sameNodeName')
+		
+		state = tree.addNode(state, node1)
+
+		expect(() => {
+			tree.addNode(state, node2)
+		}).toThrow(`Duplicated nodePathName 'sameNodeName'`)
 	})
 })

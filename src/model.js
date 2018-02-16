@@ -1,12 +1,20 @@
 import uuid from 'uuid'
 
+import { minArity } from './auxiliary'
+
 const TRAILING_SLASH_RE = /\/$/
 const trimTrailingSlash = (str) => {
 	return typeof str === 'string' ?
 		str.replace(TRAILING_SLASH_RE, '') : undefined
 }
 
-const root = (nodeRootPath, spec) => ({
+/**
+ * [description]
+ * @param  {[type]} nodeRootPath [description]
+ * @param  {[type]} spec         [description]
+ * @return {[type]}              [description]
+ */
+export const root = (nodeRootPath, spec) => ({
 	...spec,
 	nodeRootPath: trimTrailingSlash(nodeRootPath),
 	nodeType: 'branch',
@@ -15,29 +23,49 @@ const root = (nodeRootPath, spec) => ({
 	isRoot: true,
 })
 
-const branch = (parentId, nodePathName, spec) => ({
+/**
+ * [description]
+ * @param  {[type]} parentId     [description]
+ * @param  {[type]} nodePathName [description]
+ * @param  {[type]} spec         [description]
+ * @return {[type]}              [description]
+ */
+export const branch = minArity(2, (parentId, nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'branch',
 	id: uuid.v4(),
 	childIds: [],
 	parentId: parentId,
-})
+}))
 
-const leaf = (parentId, nodePathName, spec) => ({
+/**
+ * [description]
+ * @param  {[type]} parentId     [description]
+ * @param  {[type]} nodePathName [description]
+ * @param  {[type]} spec         [description]
+ * @return {[type]}              [description]
+ */
+export const leaf = minArity(2, (parentId, nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'leaf',
 	id: uuid.v4(),
 	parentId: parentId,
-})
+}))
 
 
 const FLATTEN_DEFAULT_OPTIONS = {
 	parentId: false,
 }
 
-const flatten = (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
+/**
+ * [description]
+ * @param  {[type]} obj     [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
+export const flatten = minArity(1, (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
 	const { children, nodePathName, nodeRootPath, ...spec } = obj
 	let currentNode = options.parentId ?
 		branch(options.parentId, nodePathName, spec) : root(nodeRootPath, spec)
@@ -61,11 +89,4 @@ const flatten = (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
 		}
 
 	}, [currentNode])
-}
-
-module.exports = {
-	root,
-	branch,
-	leaf,
-	flatten
-}
+})

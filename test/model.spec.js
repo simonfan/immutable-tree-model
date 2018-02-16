@@ -49,6 +49,12 @@ describe('model.leaf(parentId, nodePathName, spec)', () => {
 			arbitrary: 'data',
 		})
 	})
+
+	test('should ensure min arity of 2', () => {
+		expect(() => {
+			let leaf = model.leaf('parent-id-123')
+		}).toThrow(`Insufficient args: requires 2 but got 1`)
+	})
 })
 
 describe('model.branch(parentId, nodePathName, spec)', () => {
@@ -65,6 +71,12 @@ describe('model.branch(parentId, nodePathName, spec)', () => {
 			arbitrary: 'data',
 			childIds: [],
 		})
+	})
+
+	test('should ensure min arity of 2', () => {
+		expect(() => {
+			let branch = model.branch('parent-id-123')
+		}).toThrow(`Insufficient args: requires 2 but got 1`)
 	})
 })
 
@@ -107,5 +119,11 @@ describe('model.flatten(tree, options)', () => {
 		})
 
 		expect(nodes).toHaveLength(7)
+	})
+
+	test('should ensure min arity of 1', () => {
+		expect(() => {
+			let nodes = model.flatten()
+		}).toThrow(`Insufficient args: requires 1 but got 0`)
 	})
 })

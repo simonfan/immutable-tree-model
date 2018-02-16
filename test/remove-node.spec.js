@@ -10,43 +10,43 @@ let D = {
 
 beforeEach(() => {
 	let treeData = {
-		name: 'root',
+		nodePathName: 'root',
 		nodeType: 'branch',
 		children: [
 			{
-				name: 'node 1',
+				nodePathName: 'node 1',
 				nodeType: 'leaf',
 			},
 			{
-				name: 'node 2',
+				nodePathName: 'node 2',
 				nodeType: 'branch',
 				children: [
 					{
-						name: 'node 21',
+						nodePathName: 'node 21',
 						nodeType: 'leaf',
 					},
 					{
-						name: 'node 22',
+						nodePathName: 'node 22',
 						nodeType: 'branch',
 						children: [
 							{
-								name: 'node 221',
+								nodePathName: 'node 221',
 								nodeType: 'leaf',
 							},
 							{
-								name: 'node 222',
+								nodePathName: 'node 222',
 								nodeType: 'leaf',
 							}
 						],
 					},
 					{
-						name: 'node 23',
+						nodePathName: 'node 23',
 						nodeType: 'leaf',
 					}
 				]
 			},
 			{
-				name: 'node 3',
+				nodePathName: 'node 3',
 				nodeType: 'leaf',
 			}
 		]

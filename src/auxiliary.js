@@ -1,6 +1,6 @@
 
 // unused
-const scopeState = (property, fn) => {
+export const scopeState = (property, fn) => {
 	return (state, ...args) => {
 		return {
 			...state,
@@ -9,25 +9,25 @@ const scopeState = (property, fn) => {
 	}
 }
 
-const computeProperty = (obj, property, fn) => {
+export const computeProperty = (obj, property, fn) => {
 	return {
 		...obj,
 		[property]: fn(obj[property])
 	}
 }
 
-const deleteProperty = (obj, property) => {
+export const deleteProperty = (obj, property) => {
 	obj = Object.assign({}, obj)
 	delete obj[property]
 
 	return obj
 }
 
-const deleteProperties = (obj, properties) => {
+export const deleteProperties = (obj, properties) => {
 	return properties.reduce(deleteProperty, obj)
 }
 
-const arrayRemoveItem = (arr, item) => {
+export const arrayRemoveItem = (arr, item) => {
 	let index = arr.indexOf(item)
 
 	return [
@@ -36,11 +36,24 @@ const arrayRemoveItem = (arr, item) => {
 	]
 }
 
-module.exports = {
-	scopeState,
-	computeProperty,
-	deleteProperty,
-	deleteProperties,
+const arityError = (required, actual) => new Error(`Insufficient args: requires ${required} but got ${actual}`)
 
-	arrayRemoveItem
+export const strictArity = (fn) => {
+	return (...args) => {
+		if (args.length < fn.length) {
+			throw arityError(fn.length, args.length)
+		}
+
+		return fn(...args)
+	}
+}
+
+export const minArity = (arity, fn) => {
+	return (...args) => {
+		if (args.length < arity) {
+			throw arityError(arity, args.length)
+		}
+
+		return fn(...args)
+	}
 }
