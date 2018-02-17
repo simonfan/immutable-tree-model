@@ -1,6 +1,6 @@
 'use strict'
 
-const tree = require('../src')
+import tree from '../src'
 const { model } = tree
 
 describe('addNode(state, node)', () => {

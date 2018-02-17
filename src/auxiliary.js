@@ -1,6 +1,5 @@
 let ID_COUNTER = 0
 export const generateId = () => {
-	// ID_COUNTER += 1
 	return ++ID_COUNTER
 }
 
@@ -41,7 +40,8 @@ export const arrayRemoveItem = (arr, item) => {
 	]
 }
 
-const arityError = (required, actual) => new Error(`Insufficient args: requires ${required} but got ${actual}`)
+const arityError = (required, actual) =>
+	new Error(`Insufficient args: requires ${required} but got ${actual}`)
 
 export const strictArity = (fn) => {
 	return (...args) => {

@@ -1,12 +1,11 @@
 'use strict'
 
-const tree = require('../src')
-const { model } = tree
+import tree from '../src'
 
 describe('test', () => {
 	test('setRoot(state, root)', () => {
 
-		let root = model.root('path/to/root', {
+		let root = tree.model.root('path/to/root', {
 			name: 'root node'
 		})
 		let state = tree.setRoot(tree.defaultState(), root)

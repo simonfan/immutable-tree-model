@@ -6,7 +6,12 @@ import {
 	strictArity
 } from './auxiliary'
 import model from './model'
-import { getNode, getDescendantIds, getChildren } from './get'
+import {
+	getNode,
+	getAncestorIds,
+	getDescendantIds,
+	getChildren
+} from './get'
 
 /**
  * 
@@ -94,6 +99,18 @@ export const removeNode = strictArity((state, nodeId) => {
 	})
 })
 
+const hasChildWithNodePathName = (state, parentId, nodePathName) => {
+	return getChildren(state, parentId).some(child => {
+		return child.nodePathName === nodePathName
+	})
+}
+
+const isAncestor = (state, candidateAncestorId, nodeId) => {
+	return getAncestorIds(state, nodeId).some(ancestorId => {
+		return ancestorId === candidateAncestorId
+	})
+}
+
 /**
  * 
  */
@@ -101,7 +118,19 @@ export const moveNode = strictArity((state, nodeId, targetParentId) => {
 	let node = getNode(state, nodeId)
 
 	if (node.isRoot) {
-		throw new Error(`Node '${nodeId}' is the root node and thus cannot be removed.`)
+		throw new Error(`Cannot move root node '${nodeId}'`)
+	}
+
+	if (nodeId === targetParentId) {
+		throw new Error('Cannot move node into itself')
+	}
+	
+	if (hasChildWithNodePathName(state, targetParentId, node.nodePathName)) {
+		throw new Error(`Duplicated nodePathName '${node.nodePathName}'`)
+	}
+	
+	if (isAncestor(state, nodeId, targetParentId)) {
+		throw new Error(`Cannot move node '${nodeId}' into a descendant '${targetParentId}'`)
 	}
 
 	let parentNode = getNode(state, node.parentId)
@@ -122,6 +151,21 @@ export const moveNode = strictArity((state, nodeId, targetParentId) => {
 				...node,
 				parentId: targetParentId
 			}
+		}
+	})
+})
+
+export const updateNode = strictArity((state, nodeId, update) => {
+	let node = getNode(state, nodeId)
+
+	return computeProperty(state, 'byId', (byId) => {
+		return {
+			...byId,
+			[nodeId]: typeof update === 'function' ?
+				update(node) : {
+					...node,
+					...update,
+				}
 		}
 	})
 })

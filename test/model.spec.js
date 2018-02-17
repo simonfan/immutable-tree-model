@@ -1,11 +1,10 @@
 'use strict'
 
-const tree = require('../src')
-const { model } = tree
+import tree from '../src'
 
-describe('model.root(spec)', () => {
+describe('tree.model.root(spec)', () => {
 	test('should return an object describing the root node', () => {
-		let root = model.root('path/to/root', {
+		let root = tree.model.root('path/to/root', {
 			arbitrary: 'data',
 		})
 
@@ -20,7 +19,7 @@ describe('model.root(spec)', () => {
 	})
 
 	test('should normalize the nodeRootPath to have no trailing slash', () => {
-		let root = model.root('path/to/root/', {
+		let root = tree.model.root('path/to/root/', {
 			arbitrary: 'data',
 		})
 
@@ -35,9 +34,9 @@ describe('model.root(spec)', () => {
 	})
 })
 
-describe('model.leaf(parentId, nodePathName, spec)', () => {
+describe('tree.model.leaf(parentId, nodePathName, spec)', () => {
 	test('should return an object describing a leaf node', () => {
-		let leaf = model.leaf('parent-id-123', 'leaf name', {
+		let leaf = tree.model.leaf('parent-id-123', 'leaf name', {
 			arbitrary: 'data',
 		})
 		
@@ -52,14 +51,14 @@ describe('model.leaf(parentId, nodePathName, spec)', () => {
 
 	test('should ensure min arity of 2', () => {
 		expect(() => {
-			let leaf = model.leaf('parent-id-123')
+			let leaf = tree.model.leaf('parent-id-123')
 		}).toThrow(`Insufficient args: requires 2 but got 1`)
 	})
 })
 
-describe('model.branch(parentId, nodePathName, spec)', () => {
+describe('tree.model.branch(parentId, nodePathName, spec)', () => {
 	test('should return an object describing a branch node', () => {
-		let branch = model.branch('parent-id-123', 'branch name', {
+		let branch = tree.model.branch('parent-id-123', 'branch name', {
 			arbitrary: 'data',
 		})
 		
@@ -75,14 +74,14 @@ describe('model.branch(parentId, nodePathName, spec)', () => {
 
 	test('should ensure min arity of 2', () => {
 		expect(() => {
-			let branch = model.branch('parent-id-123')
+			let branch = tree.model.branch('parent-id-123')
 		}).toThrow(`Insufficient args: requires 2 but got 1`)
 	})
 })
 
-describe('model.flatten(tree, options)', () => {
+describe('tree.model.flatten(tree, options)', () => {
 	test('should convert an object tree into an array of nodes ready to be added', () => {
-		let nodes = model.flatten({
+		let nodes = tree.model.flatten({
 			name: 'root',
 			nodeType: 'branch',
 			children: [
@@ -123,7 +122,7 @@ describe('model.flatten(tree, options)', () => {
 
 	test('should ensure min arity of 1', () => {
 		expect(() => {
-			let nodes = model.flatten()
+			let nodes = tree.model.flatten()
 		}).toThrow(`Insufficient args: requires 1 but got 0`)
 	})
 })

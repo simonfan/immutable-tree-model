@@ -1,8 +1,6 @@
 'use strict'
 
-const tree = require('../src')
-const { model, removeNode } = tree
-const { getNode, getNodes, getDescendantIds, getRootId, getAllNodeIds } = tree
+import tree from '../src'
 
 let D = {
 	state: null
@@ -52,7 +50,7 @@ beforeEach(() => {
 		]
 	}
 
-	let [rootNode, ...treeNodes] = model.flatten(treeData)
+	let [rootNode, ...treeNodes] = tree.model.flatten(treeData)
 
 	D.state = tree.setRoot(tree.defaultState(), rootNode)
 	D.state = treeNodes.reduce((state, node) => {
@@ -63,27 +61,27 @@ beforeEach(() => {
 	D.treeNodes = treeNodes
 })
 
-describe('removeNode(state, nodeId)', () => {
+describe('tree.removeNode(state, nodeId)', () => {
 	test('removing a leaf should remove only the node itself', () => {
 
-		let state = removeNode(D.state, D.treeNodes[0].id)
+		let state = tree.removeNode(D.state, D.treeNodes[0].id)
 
-		expect(getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[0].id)
+		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[0].id)
 		expect(state.byId[D.treeNodes[0].id]).toBeUndefined()
-		expect(getAllNodeIds(state)).toHaveLength(8)
+		expect(tree.getAllNodeIds(state)).toHaveLength(8)
 	})
 
 	test('removing a branch should remove the node corresponding to the given nodeId and all its descendants', () => {
-		let state = removeNode(D.state, D.treeNodes[1].id)
+		let state = tree.removeNode(D.state, D.treeNodes[1].id)
 
-		expect(getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[1].id)
-		expect(getAllNodeIds(state)).toHaveLength(3)
+		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[1].id)
+		expect(tree.getAllNodeIds(state)).toHaveLength(3)
 	})
 
 	test('should refuse to remove the root node', () => {
 
 		expect(() => {
-			removeNode(D.state, D.rootNode.id)
+			tree.removeNode(D.state, D.rootNode.id)
 		}).toThrow()
 	})
 })

@@ -1,4 +1,4 @@
-const tree = require('../src')
+import tree from '../src'
 const { model } = tree
 const {
 	getNode,
@@ -6,7 +6,9 @@ const {
 	getDescendantIds,
 	getAncestorIds,
 	getTree,
-	getPath
+	getNodePath,
+	getChildByPathName,
+	getNodeIdByPath
 } = tree
 
 let D = {
@@ -19,39 +21,39 @@ beforeEach(() => {
 		nodeType: 'branch',
 		children: [
 			{
-				nodePathName: 'node-1',
+				nodePathName: 'node1',
 				nodeType: 'leaf',
 			},
 			{
-				nodePathName: 'node-2',
+				nodePathName: 'node2',
 				nodeType: 'branch',
 				children: [
 					{
-						nodePathName: 'node-21',
+						nodePathName: 'node21',
 						nodeType: 'leaf',
 					},
 					{
-						nodePathName: 'node-22',
+						nodePathName: 'node22',
 						nodeType: 'branch',
 						children: [
 							{
-								nodePathName: 'node-221',
+								nodePathName: 'node221',
 								nodeType: 'leaf',
 							},
 							{
-								nodePathName: 'node-222',
+								nodePathName: 'node222',
 								nodeType: 'leaf',
 							}
 						],
 					},
 					{
-						nodePathName: 'node-23',
+						nodePathName: 'node23',
 						nodeType: 'leaf',
 					}
 				]
 			},
 			{
-				nodePathName: 'node-3',
+				nodePathName: 'node3',
 				nodeType: 'leaf',
 			}
 		]
@@ -104,7 +106,7 @@ describe('getDescendantIds(state, nodeId)', () => {
 
 describe('getAncestorIds(state, nodeId)', () => {
 	test('should retrieve an array of ancestor ids', () => {
-		let ancestorIds = getAncestorIds(D.state, D.getNodeByPathName('node-222').id)
+		let ancestorIds = getAncestorIds(D.state, D.getNodeByPathName('node222').id)
 		let ancestors = getNodes(D.state, ancestorIds)
 
 		let path = ancestors.reduce((acc, ancestor) => {
@@ -121,17 +123,58 @@ describe('getTree(state, nodeId)', () => {
 	})
 })
 
-
-describe('getPath(state, nodeId)', () => {
+describe('getNodePath(state, nodeId)', () => {
 	test('should return the path to the node preceded by the nodeRootPath', () => {
-		let nodePath = getPath(D.state, D.getNodeByPathName('node-222').id)
+		let nodePath = getNodePath(D.state, D.getNodeByPathName('node222').id)
 
-		expect(nodePath).toEqual('path/to/root/node-2/node-22/node-222')
+		expect(nodePath).toEqual('path/to/root/node2/node22/node222')
 	})
 
 	test('if given the root, should return the nodeRootPath', () => {
-		let nodePath = getPath(D.state, D.rootNode.id)
+		let nodePath = getNodePath(D.state, D.rootNode.id)
 
 		expect(nodePath).toEqual('path/to/root')
+	})
+
+	test('if the root node has no nodeRootPath, the nodeRootPath should not be prepended', () => {
+		let root = tree.model.root()
+		let node1 = tree.model.branch(root.id, 'node1')
+		let node11 = tree.model.leaf(node1.id, 'node11')
+
+		let state = tree.setRoot(tree.defaultState(), root)
+		state = tree.addNode(state, node1)
+		state = tree.addNode(state, node11)
+
+		expect(tree.getNodePath(state, node11.id)).toEqual('node1/node11')
+	})
+})
+
+describe('getChildByPathName(state, parentId, childPathName)', () => {
+	test('should return the id of the child that corresponds to the childPathName', () => {
+		let node = getChildByPathName(D.state, D.getNodeByPathName('node22').id, 'node222')
+
+		expect(node).toEqual({
+			nodePathName: 'node222',
+			nodeType: 'leaf',
+			id: expect.any(Number),
+			parentId: expect.any(Number)
+		})
+	})
+})
+
+describe('getNodeIdByPath(state, rootNodeId, nodePath)', () => {
+	test('should return the nodeId that corresponds to the nodePath', () => {
+		let node221 = D.getNodeByPathName('node221')
+		let nodeId = getNodeIdByPath(D.state, D.rootNode.id, 'node2/node22/node221')
+
+		expect(nodeId).toEqual(node221.id)
+	})
+
+	test('should resolve paths relative to the rootNodeId', () => {
+		let node2 = D.getNodeByPathName('node2')
+		let node221 = D.getNodeByPathName('node221')
+		let nodeId = getNodeIdByPath(D.state, node2.id, 'node22/node221')
+
+		expect(nodeId).toEqual(node221.id)
 	})
 })
