@@ -116,6 +116,24 @@ describe('getDescendantIds(state, nodeId)', () => {
 
 describe('getAncestorIds(state, nodeId)', () => {
 	test('should retrieve an array of ancestor ids', () => {
+		expect(getAncestorIds(
+			D.state,
+			D.nodesByLabel['node222'].id
+		))
+		.toEqual([
+			D.nodesByLabel['node22'].id,
+			D.nodesByLabel['node2'].id,
+			D.nodesByLabel['root'].id
+		])
+
+		expect(getAncestorIds(
+			D.state,
+			D.nodesByLabel['root'].id
+		))
+		.toEqual([])
+	})
+
+	test('should retrieve an array of ancestor ids', () => {
 		let ancestorIds = getAncestorIds(D.state, D.nodesByLabel['node222'].id)
 
 		expect(ancestorIds).toEqual([
@@ -153,17 +171,63 @@ describe('getTree(state, nodeId)', () => {
 	})
 })
 
-describe('getNodePath(state, nodeId)', () => {
-	test('should return the path to the node preceded by the nodeRootPath', () => {
-		let nodePath = getNodePath(D.state, D.nodesByLabel['node222'].id)
+describe('getNodePath(state, sourceNodeId, nodeId)', () => {
+	test('should return the path to the node relative to the sourceNode', () => {
+		// relative to root
+		expect(getNodePath(
+			D.state,
+			D.nodesByLabel['root'].id,
+			D.nodesByLabel['node222'].id
+		))
+		.toEqual('node2/node22/node222')
 
-		expect(nodePath).toEqual('path/to/root/node2/node22/node222')
+		// relative to some branch
+		expect(getNodePath(
+			D.state,
+			D.nodesByLabel['node2'].id,
+			D.nodesByLabel['node222'].id
+		))
+		.toEqual('node22/node222')
+
+		// immediate parent
+		expect(getNodePath(
+			D.state,
+			D.nodesByLabel['node22'].id,
+			D.nodesByLabel['node222'].id
+		))
+		.toEqual('node222')
 	})
 
-	test('if given the root, should return the nodeRootPath', () => {
-		let nodePath = getNodePath(D.state, D.nodesByLabel['root'].id)
+	test('should throw error in case the sourceNode is not in the ancestors chain of the nodeId', () => {
+		// TODO: maybe implement `..` like relative paths
+		expect(() => {
+			getNodePath(
+				D.state,
+				D.nodesByLabel['node1'].id,
+				D.nodesByLabel['node222'].id
+			)
+		})
+		.toThrow(`Node ${D.nodesByLabel['node1'].id} is not an ancestor of ${D.nodesByLabel['node222'].id}`)
 
-		expect(nodePath).toEqual('path/to/root')
+		// path to itself
+		expect(() => {
+			getNodePath(
+				D.state,
+				D.nodesByLabel['root'].id,
+				D.nodesByLabel['root'].id
+			)
+		})
+		.toThrow(`Node ${D.nodesByLabel['root'].id} is not an ancestor of ${D.nodesByLabel['root'].id}`)
+	})
+})
+
+describe('getAbsoluteNodePath(state, nodeId)', () => {
+	test('should return an absolute path, taking into consideration the rootNode\'s nodeRootPath prop', () => {
+		expect(tree.getAbsoluteNodePath(
+			D.state, 
+			D.nodesByLabel['node222'].id
+		))
+		.toEqual('path/to/root/node2/node22/node222')
 	})
 
 	test('if the root node has no nodeRootPath, the nodeRootPath should not be prepended', () => {
@@ -175,7 +239,7 @@ describe('getNodePath(state, nodeId)', () => {
 		state = tree.addNode(state, root.id, node1)
 		state = tree.addNode(state, node1.id, node11)
 
-		expect(tree.getNodePath(state, node11.id)).toEqual('node1/node11')
+		expect(tree.getAbsoluteNodePath(state, node11.id)).toEqual('node1/node11')
 	})
 })
 

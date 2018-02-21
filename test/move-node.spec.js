@@ -75,7 +75,7 @@ describe('tree.moveNode(state, nodeId, targetParentId)', () => {
 		let node22 = tree.getNodeByPath(D.state, D.nodesByLabel.root.id, 'node2/node22')
 		D.state = tree.moveNode(D.state, node3.id, node22.id)
 
-		expect(tree.getNodePath(D.state, node3.id)).toEqual('node2/node22/node3')
+		expect(tree.getNodePath(D.state, D.nodesByLabel.root.id, node3.id)).toEqual('node2/node22/node3')
 	})
 
 	test('should throw error when moving a node to parent that already has a child with the same nodePathName', () => {

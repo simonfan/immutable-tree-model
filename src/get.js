@@ -152,22 +152,35 @@ export const getTree = strictArity((state, nodeId) => {
  * @param  {[type]} nodeId [description]
  * @return {[type]}        [description]
  */
-export const getNodePath = strictArity((state, nodeId) => {
+export const getNodePath = strictArity((state, sourceNodeId, nodeId) => {
 	let node = getNode(state, nodeId)
 
-	if (node.isRoot) {
-		return node.nodeRootPath ? node.nodeRootPath : ''
-	} else {
-		let pathNodes = getAncestors(state, nodeId)
-		let root = pathNodes.pop()
+	let ancestors = getAncestors(state, nodeId).reverse()
+	let sourceNodePathNodeIndex = ancestors.findIndex(ancestor => ancestor.id === sourceNodeId)
 
-		let pre = root.nodeRootPath ? (root.nodeRootPath + '/') : ''
-
-		return pre + pathNodes.reduce((p, ancestor) => {
-			return ancestor.nodePathName + '/' + p
-		}, node.nodePathName)
+	if (sourceNodePathNodeIndex === -1) {
+		throw new Error(`Node ${sourceNodeId} is not an ancestor of ${nodeId}`)
 	}
+
+	// restrict the ancestors to the sourceNodeId
+	ancestors = ancestors.slice(sourceNodePathNodeIndex + 1)
+
+	return ancestors
+		.map(ancestor => ancestor.nodePathName)
+		.concat([node.nodePathName])
+		.join('/')
 })
+
+export const getAbsoluteNodePath = (state, nodeId) => {
+	let root = getNode(state, state.rootId)
+
+	if (nodeId === state.rootId) {
+		return root.nodeRootPath ? root.nodeRootPath : ''
+	} else {
+		let pre = root.nodeRootPath ? `${root.nodeRootPath}/` : ''
+		return pre + getNodePath(state, state.rootId, nodeId)
+	}
+}
 
 /**
  * [description]
