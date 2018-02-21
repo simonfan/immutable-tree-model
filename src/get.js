@@ -1,4 +1,4 @@
-import { deleteProperties, strictArity, splitNodePath } from './auxiliary'
+import { deleteProperties, strictArity, minArity, splitNodePath } from './auxiliary'
 
 const pipeState = (...fns) => {
 	const [first, ...rest] = fns
@@ -137,7 +137,9 @@ export const getTree = strictArity((state, nodeId) => {
 	if (node.nodeType === 'branch') {
 		node = {
 			...node,
-			children: getChildren(state, nodeId).map(childNode => getTree(state, childNode.id))
+			children: getNodes(state, node.childIds).map(childNode => {
+				return getTree(state, childNode.id)
+			})
 		}
 	}
 
@@ -172,14 +174,12 @@ export const getNodePath = strictArity((state, nodeId) => {
  * @param  {[type]} (state, nodeId,       nodePathName [description]
  * @return {[type]}         [description]
  */
-export const getChildByPathName = strictArity((state, parentId, childPathName) => {
-	let node = getChildren(state, parentId).find(child => child.nodePathName === childPathName)
-
-	return node
+export const getChild = strictArity((state, parentId, childPathName) => {
+	return getChildren(state, parentId).find(child => child.nodePathName === childPathName)
 })
 
-export const getChildIdByPathName = strictArity((state, parentId, childPathName) => {
-	return getChildByPathName(state, parentId, childPathName).id
+export const getChildId = strictArity((state, parentId, childPathName) => {
+	return getChild(state, parentId, childPathName).id
 })
 
 
@@ -189,11 +189,69 @@ export const getChildIdByPathName = strictArity((state, parentId, childPathName)
  * @param  {[type]} nodePath [description]
  * @return {[type]}          [description]
  */
-export const getNodeIdByPath = strictArity((state, fromNodeId, nodePath) => {
-	let nodePathNames = Array.isArray(nodePath) ? nodePath : splitNodePath(nodePath)
+export const getNodeByPath = strictArity((state, sourceNodeId, path) => {
+	let sourceNode = getNode(state, sourceNodeId)
+	let nodePathNames = Array.isArray(path) ? path : splitNodePath(path)
 
-	return nodePathNames.reduce((parentId, nodePathName) => {
-		return getChildIdByPathName(state, parentId, nodePathName)
-	}, fromNodeId)
+	return nodePathNames.reduce((sourceNode, nodePathName) => {
+		return sourceNode ?
+			getNodes(state, sourceNode.childIds).find(childNode => {
+				return childNode.nodePathName === nodePathName
+			}) : null
+	}, sourceNode)
 })
-export const getNodeByPath = pipeState(getNodeIdByPath, getNode)
+export const getNodeIdByPath = pipeState(getNodeByPath, (state, node) => {
+	return node ? node.id : null
+})
+
+/**
+ * [description]
+ * @param  {[type]} state               [description]
+ * @param  {[type]} candidateAncestorId [description]
+ * @param  {[type]} nodeId              [description]
+ * @return {[type]}                     [description]
+ */
+export const isAncestor = strictArity((state, candidateAncestorNodeId, nodeId) => {
+	return getAncestorIds(state, nodeId).some(ancestorId => {
+		return ancestorId === candidateAncestorNodeId
+	})
+})
+
+/**
+ * [description]
+ * @param  {[type]} state        [description]
+ * @param  {[type]} parentId     [description]
+ * @param  {[type]} nodePathName [description]
+ * @return {[type]}              [description]
+ */
+export const hasChild = strictArity((state, parentNodeId, nodePathName) => {
+	return getChild(state, parentNodeId, nodePathName) ? true : false
+})
+
+export const canMoveNode = minArity(3, (state, nodeId, targetParentNodeId, options = { throwError: false }) => {
+	let node = getNode(state, nodeId)
+	let targetParentNode = getNode(state, targetParentNodeId)
+
+	const { throwError } = options
+	let err = false
+
+	if (node.isRoot) {
+		err = new Error(`Cannot move root node '${node.id}'`)
+	} else if (node.id === targetParentNode.id) {
+		err = new Error('Cannot move node into itself')
+	} else if (hasChild(state, targetParentNode.id, node.nodePathName)) {
+		err = new Error(`Duplicated nodePathName '${node.nodePathName}'`)
+	} else if (isAncestor(state, node.id, targetParentNode.id)) {
+		err = new Error(`Cannot move node '${node.id}' into a descendant '${targetParentNode.id}'`)
+	}
+
+	if (err) {
+		if (throwError) {
+			throw err
+		}
+
+		return false
+	} else {
+		return true
+	}
+})

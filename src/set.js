@@ -14,7 +14,8 @@ import {
 	getAncestorIds,
 	getDescendantIds,
 	getChildren,
-	getChildByPathName
+	getChild,
+	canMoveNode
 } from './get'
 
 /**
@@ -83,7 +84,7 @@ export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec
 
 	while (nodePathNames.length > 0) {
 		let nextNodePathName = nodePathNames.shift()
-		let nextNode = getChildByPathName(state, parentNode.id, nextNodePathName)
+		let nextNode = getChild(state, parentNode.id, nextNodePathName)
 
 		if (nextNode) {
 			parentNode = nextNode
@@ -94,7 +95,7 @@ export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec
 		}
 	}
 
-	if (!getChildByPathName(state, parentNode.id, nodeSpec.nodePathName)) {
+	if (!getChild(state, parentNode.id, nodeSpec.nodePathName)) {
 		state = addNode(state, parentNode.id, nodeSpec)
 	}
 
@@ -154,21 +155,7 @@ const isAncestor = (state, candidateAncestorId, nodeId) => {
 export const moveNode = strictArity((state, nodeId, targetParentId) => {
 	let node = getNode(state, nodeId)
 
-	if (node.isRoot) {
-		throw new Error(`Cannot move root node '${nodeId}'`)
-	}
-
-	if (nodeId === targetParentId) {
-		throw new Error('Cannot move node into itself')
-	}
-	
-	if (hasChildWithNodePathName(state, targetParentId, node.nodePathName)) {
-		throw new Error(`Duplicated nodePathName '${node.nodePathName}'`)
-	}
-	
-	if (isAncestor(state, nodeId, targetParentId)) {
-		throw new Error(`Cannot move node '${nodeId}' into a descendant '${targetParentId}'`)
-	}
+	canMoveNode(state, nodeId, targetParentId, { throwError: true })
 
 	let parentNode = getNode(state, node.parentId)
 	let targetParentNode = getNode(state, targetParentId)

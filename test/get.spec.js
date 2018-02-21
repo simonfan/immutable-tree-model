@@ -8,7 +8,7 @@ const {
 	getAncestorIds,
 	getTree,
 	getNodePath,
-	getChildByPathName,
+	getChild,
 	getNodeIdByPath
 } = tree
 
@@ -179,9 +179,9 @@ describe('getNodePath(state, nodeId)', () => {
 	})
 })
 
-describe('getChildByPathName(state, parentId, childPathName)', () => {
+describe('getChild(state, parentId, childPathName)', () => {
 	test('should return the id of the child that corresponds to the childPathName', () => {
-		let node = getChildByPathName(D.state, D.nodesByLabel['node22'].id, 'node222')
+		let node = getChild(D.state, D.nodesByLabel['node22'].id, 'node222')
 
 		expect(node).toEqual({
 			nodePathName: 'node222',
@@ -193,7 +193,7 @@ describe('getChildByPathName(state, parentId, childPathName)', () => {
 	})
 })
 
-describe('getNodeIdByPath(state, rootNodeId, nodePath)', () => {
+describe('getNodeIdByPath(state, sourceNodeId, nodePath)', () => {
 	test('should return the nodeId that corresponds to the nodePath', () => {
 		let node221 = D.nodesByLabel['node221']
 		let nodeId = getNodeIdByPath(D.state, D.nodesByLabel['root'].id, 'node2/node22/node221')
@@ -201,7 +201,7 @@ describe('getNodeIdByPath(state, rootNodeId, nodePath)', () => {
 		expect(nodeId).toEqual(node221.id)
 	})
 
-	test('should resolve paths relative to the rootNodeId', () => {
+	test('should resolve paths relative to the sourceNodeId', () => {
 		let node2 = D.nodesByLabel['node2']
 		let node221 = D.nodesByLabel['node221']
 		let nodeId = getNodeIdByPath(D.state, node2.id, 'node22/node221')
