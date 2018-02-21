@@ -66,5 +66,5 @@ export const minArity = (arity, fn) => {
 }
 
 export const splitNodePath = (nodePath) => {
-	return nodePath.split(path.sep)
+	return nodePath.split(path.sep).filter(Boolean)
 }

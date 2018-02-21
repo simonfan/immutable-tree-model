@@ -108,6 +108,27 @@ describe('tree.ensureNodeAtPath(state, sourceNodeId, path, spec)', () => {
 		})
 	})
 
+	test('should create a file directly at the source node in case there is no path', () => {
+		D.state = tree.ensureNodeAtPath(
+			D.state,
+			tree.getRootId(D.state),
+			'',
+			tree.model.leaf('node8')
+		)
+		
+		expect(tree.getNodeByPath(
+			D.state,
+			tree.getRootId(D.state),
+			'node8'
+		))
+		.toEqual({
+			nodePathName: 'node8',
+			nodeType: 'leaf',
+			id: expect.any(Number),
+			parentId: expect.any(Number),
+		})
+	})
+
 	test('should not add any new nodes if the path is already occupied by another node', () => {
 		let stateBefore = D.state
 		let stateAfter  = tree.ensureNodeAtPath(

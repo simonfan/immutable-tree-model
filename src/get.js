@@ -268,3 +268,7 @@ export const canMoveNode = minArity(3, (state, nodeId, targetParentNodeId, optio
 		return true
 	}
 })
+
+export const isRoot = (state, nodeId) => {
+	return state.rootId === nodeId
+}
