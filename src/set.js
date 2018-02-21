@@ -3,14 +3,18 @@ import {
 	deleteProperty,
 	deleteProperties,
 	arrayRemoveItem,
-	strictArity
+	strictArity,
+	splitNodePath
 } from './auxiliary'
-import model from './model'
+import { branch } from './model'
 import {
 	getNode,
+	getNodes,
+	getNodeIdByPath,
 	getAncestorIds,
 	getDescendantIds,
-	getChildren
+	getChildren,
+	getChildByPathName
 } from './get'
 
 /**
@@ -38,22 +42,25 @@ export const setRoot = strictArity((state, root) => {
 })
 
 /**
- * Adds a node to the tree.
- * The node must have already been formatted by the model
+ * Adds a nodeSpec to the tree.
+ * The nodeSpec must have already been formatted by the model
  */
-export const addNode = strictArity((state, node) => {
-	const { id, parentId } = node
+export const addNode = strictArity((state, parentId, nodeSpec) => {
+	const { id } = nodeSpec
 	let parentNode = getNode(state, parentId)
-	let siblings = getChildren(state, parentId)
+	let siblings = getNodes(state, parentNode.childIds)
 
-	if (siblings.some(s => s.nodePathName === node.nodePathName)) {
-		throw new Error(`Duplicated nodePathName '${node.nodePathName}'`)
+	if (siblings.some(sibling => sibling.nodePathName === nodeSpec.nodePathName)) {
+		throw new Error(`Duplicated nodePathName '${nodeSpec.nodePathName}'`)
 	}
 
 	return computeProperty(state, 'byId', (byId) => {
 		return {
 			...byId,
-			[id]: node,
+			[id]: {
+				...nodeSpec,
+				parentId: parentId,
+			},
 			[parentId]: {
 				...parentNode,
 				childIds: [
@@ -65,12 +72,42 @@ export const addNode = strictArity((state, node) => {
 	})
 })
 
+export const addNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec) => {
+	return addNode(state, getNodeIdByPath(state, sourceNodeId, path), nodeSpec)
+})
+
+export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec) => {
+	let nodePathNames = Array.isArray(path) ? path : splitNodePath(path)
+	let sourceNode = getNode(state, sourceNodeId)
+	let parentNode = sourceNode
+
+	while (nodePathNames.length > 0) {
+		let nextNodePathName = nodePathNames.shift()
+		let nextNode = getChildByPathName(state, parentNode.id, nextNodePathName)
+
+		if (nextNode) {
+			parentNode = nextNode
+		} else {
+			let newNode = branch(nextNodePathName)
+			state = addNode(state, parentNode.id, newNode)
+			parentNode = newNode
+		}
+	}
+
+	if (!getChildByPathName(state, parentNode.id, nodeSpec.nodePathName)) {
+		state = addNode(state, parentNode.id, nodeSpec)
+	}
+
+	return state
+})
+
 /**
  * 
  */
-export const addNodes = strictArity((state, nodes) => {
-	return nodes.reduce((state, node) => {
-		return addNode(state, node)
+export const addNodes = strictArity((state, nodeSpecs) => {
+	return nodeSpecs.reduce((state, nodeSpec) => {
+		const { parentId, ...spec } = nodeSpec
+		return addNode(state, parentId, spec)
 	}, state)
 })
 

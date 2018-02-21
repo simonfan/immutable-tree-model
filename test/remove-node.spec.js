@@ -8,73 +8,83 @@ let D = {
 
 beforeEach(() => {
 	let treeData = {
+		label: 'root',
 		nodePathName: 'root',
 		nodeType: 'branch',
 		children: [
 			{
-				nodePathName: 'node 1',
+				label: 'node1',
+				nodePathName: 'node1',
 				nodeType: 'leaf',
 			},
 			{
-				nodePathName: 'node 2',
+				label: 'node2',
+				nodePathName: 'node2',
 				nodeType: 'branch',
 				children: [
 					{
-						nodePathName: 'node 21',
+						label: 'node21',
+						nodePathName: 'node21',
 						nodeType: 'leaf',
 					},
 					{
-						nodePathName: 'node 22',
+						label: 'node22',
+						nodePathName: 'node22',
 						nodeType: 'branch',
 						children: [
 							{
-								nodePathName: 'node 221',
+								label: 'node221',
+								nodePathName: 'node221',
 								nodeType: 'leaf',
 							},
 							{
-								nodePathName: 'node 222',
+								label: 'node222',
+								nodePathName: 'node222',
 								nodeType: 'leaf',
 							}
 						],
 					},
 					{
-						nodePathName: 'node 23',
+						label: 'node23',
+						nodePathName: 'node23',
 						nodeType: 'leaf',
 					}
 				]
 			},
 			{
-				nodePathName: 'node 3',
+				label: 'node3',
+				nodePathName: 'node3',
 				nodeType: 'leaf',
 			}
 		]
 	}
 
-	let [rootNode, ...treeNodes] = tree.model.flatten(treeData)
+	let nodes = tree.model.flatten(treeData)
+	let [rootNode, ...otherNodes] = nodes
 
 	D.state = tree.setRoot(tree.defaultState(), rootNode)
-	D.state = treeNodes.reduce((state, node) => {
-		return tree.addNode(state, node)
-	}, D.state)
+	D.state = tree.addNodes(D.state, otherNodes)
 
-	D.rootNode = rootNode
-	D.treeNodes = treeNodes
+	D.nodesByLabel = nodes.reduce((acc, node) => {
+		acc[node.label] = node
+		return acc
+	}, {})
 })
 
 describe('tree.removeNode(state, nodeId)', () => {
 	test('removing a leaf should remove only the node itself', () => {
 
-		let state = tree.removeNode(D.state, D.treeNodes[0].id)
+		let state = tree.removeNode(D.state, D.nodesByLabel['node1'].id)
 
-		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[0].id)
-		expect(state.byId[D.treeNodes[0].id]).toBeUndefined()
+		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.nodesByLabel['node1'].id)
+		expect(state.byId[D.nodesByLabel['node1'].id]).toBeUndefined()
 		expect(tree.getAllNodeIds(state)).toHaveLength(8)
 	})
 
 	test('removing a branch should remove the node corresponding to the given nodeId and all its descendants', () => {
-		let state = tree.removeNode(D.state, D.treeNodes[1].id)
+		let state = tree.removeNode(D.state, D.nodesByLabel['node2'].id)
 
-		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.treeNodes[1].id)
+		expect(tree.getNode(state, state.rootId).childIds).not.toContain(D.nodesByLabel['node2'].id)
 		expect(tree.getAllNodeIds(state)).toHaveLength(3)
 	})
 

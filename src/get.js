@@ -1,5 +1,4 @@
-import path from 'path'
-import { deleteProperties, strictArity } from './auxiliary'
+import { deleteProperties, strictArity, splitNodePath } from './auxiliary'
 
 const pipeState = (...fns) => {
 	const [first, ...rest] = fns
@@ -168,13 +167,6 @@ export const getNodePath = strictArity((state, nodeId) => {
 	}
 })
 
-const splitNodePath = (nodePath) => {
-	return nodePath.split(path.sep)
-}
-
-
-
-
 /**
  * [description]
  * @param  {[type]} (state, nodeId,       nodePathName [description]
@@ -182,10 +174,6 @@ const splitNodePath = (nodePath) => {
  */
 export const getChildByPathName = strictArity((state, parentId, childPathName) => {
 	let node = getChildren(state, parentId).find(child => child.nodePathName === childPathName)
-
-	if (!node) {
-		throw new Error(`Node with nodePathName '${childPathName}' not found within node ${parentId}`)
-	}
 
 	return node
 })
@@ -201,11 +189,11 @@ export const getChildIdByPathName = strictArity((state, parentId, childPathName)
  * @param  {[type]} nodePath [description]
  * @return {[type]}          [description]
  */
-export const getNodeIdByPath = strictArity((state, rootNodeId, nodePath) => {
-	let nodePathNames = splitNodePath(nodePath)
+export const getNodeIdByPath = strictArity((state, fromNodeId, nodePath) => {
+	let nodePathNames = Array.isArray(nodePath) ? nodePath : splitNodePath(nodePath)
 
 	return nodePathNames.reduce((parentId, nodePathName) => {
 		return getChildIdByPathName(state, parentId, nodePathName)
-	}, rootNodeId)
+	}, fromNodeId)
 })
 export const getNodeByPath = pipeState(getNodeIdByPath, getNode)

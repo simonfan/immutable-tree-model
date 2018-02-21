@@ -34,48 +34,34 @@ describe('tree.model.root(spec)', () => {
 	})
 })
 
-describe('tree.model.leaf(parentId, nodePathName, spec)', () => {
+describe('tree.model.leaf(nodePathName, spec)', () => {
 	test('should return an object describing a leaf node', () => {
-		let leaf = tree.model.leaf('parent-id-123', 'leaf name', {
+		let leaf = tree.model.leaf('leaf name', {
 			arbitrary: 'data',
 		})
 		
 		expect(leaf).toEqual({
 			id: expect.any(Number),
-			parentId: 'parent-id-123',
 			nodeType: 'leaf',
 			nodePathName: 'leaf name',
 			arbitrary: 'data',
 		})
 	})
-
-	test('should ensure min arity of 2', () => {
-		expect(() => {
-			let leaf = tree.model.leaf('parent-id-123')
-		}).toThrow(`Insufficient args: requires 2 but got 1`)
-	})
 })
 
-describe('tree.model.branch(parentId, nodePathName, spec)', () => {
+describe('tree.model.branch(nodePathName, spec)', () => {
 	test('should return an object describing a branch node', () => {
-		let branch = tree.model.branch('parent-id-123', 'branch name', {
+		let branch = tree.model.branch('branch name', {
 			arbitrary: 'data',
 		})
 		
 		expect(branch).toEqual({
 			id: expect.any(Number),
-			parentId: 'parent-id-123',
 			nodeType: 'branch',
 			nodePathName: 'branch name',
 			arbitrary: 'data',
 			childIds: [],
 		})
-	})
-
-	test('should ensure min arity of 2', () => {
-		expect(() => {
-			let branch = tree.model.branch('parent-id-123')
-		}).toThrow(`Insufficient args: requires 2 but got 1`)
 	})
 })
 
@@ -118,11 +104,5 @@ describe('tree.model.flatten(tree, options)', () => {
 		})
 
 		expect(nodes).toHaveLength(7)
-	})
-
-	test('should ensure min arity of 1', () => {
-		expect(() => {
-			let nodes = tree.model.flatten()
-		}).toThrow(`Insufficient args: requires 1 but got 0`)
 	})
 })

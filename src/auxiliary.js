@@ -1,3 +1,5 @@
+import path from 'path'
+
 let ID_COUNTER = 0
 export const generateId = () => {
 	return ++ID_COUNTER
@@ -61,4 +63,8 @@ export const minArity = (arity, fn) => {
 
 		return fn(...args)
 	}
+}
+
+export const splitNodePath = (nodePath) => {
+	return nodePath.split(path.sep)
 }

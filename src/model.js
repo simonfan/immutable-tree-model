@@ -28,14 +28,13 @@ export const root = (nodeRootPath, spec) => ({
  * @param  {[type]} spec         [description]
  * @return {[type]}              [description]
  */
-export const branch = minArity(2, (parentId, nodePathName, spec) => ({
+export const branch = (nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'branch',
 	id: generateId(),
 	childIds: [],
-	parentId: parentId,
-}))
+})
 
 /**
  * [description]
@@ -44,13 +43,12 @@ export const branch = minArity(2, (parentId, nodePathName, spec) => ({
  * @param  {[type]} spec         [description]
  * @return {[type]}              [description]
  */
-export const leaf = minArity(2, (parentId, nodePathName, spec) => ({
+export const leaf = (nodePathName, spec) => ({
 	...spec,
 	nodePathName,
 	nodeType: 'leaf',
 	id: generateId(),
-	parentId: parentId,
-}))
+})
 
 
 const FLATTEN_DEFAULT_OPTIONS = {
@@ -63,10 +61,14 @@ const FLATTEN_DEFAULT_OPTIONS = {
  * @param  {[type]} options [description]
  * @return {[type]}         [description]
  */
-export const flatten = minArity(1, (obj, options = Object.assign({}, FLATTEN_DEFAULT_OPTIONS)) => {
+export const flatten = minArity(1, (obj, options = {...FLATTEN_DEFAULT_OPTIONS}) => {
 	const { children, nodePathName, nodeRootPath, ...spec } = obj
-	let currentNode = options.parentId ?
-		branch(options.parentId, nodePathName, spec) : root(nodeRootPath, spec)
+	const { parentId } = options
+	let currentNode = parentId ?
+		branch(nodePathName, {
+			...spec,
+			parentId: parentId
+		}) : root(nodeRootPath, spec)
 
 	return children.reduce((acc, childObj) => {
 		const { nodePathName: childName, ...childSpec } = childObj
@@ -81,7 +83,13 @@ export const flatten = minArity(1, (obj, options = Object.assign({}, FLATTEN_DEF
 					})
 				]
 			case 'leaf':
-				return [...acc, leaf(currentNode.id, childName, childObj)]
+				return [
+					...acc,
+					leaf(childName, {
+						...childObj,
+						parentId: currentNode.id
+					})
+				]
 			default: 
 				throw new Error(`Invalid node nodeType '${childObj.nodeType}'`)
 		}
