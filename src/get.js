@@ -130,17 +130,16 @@ export const getAllNodes = pipeState(getAllNodeIds, getNodes)
  * @param  {[type]} nodeId [description]
  * @return {[type]}        [description]
  */
-export const getTree = minArity(2, (state, nodeId, sortChildren) => {
+export const getTree = minArity(2, (state, nodeId, options = {}) => {
 	let node = getNode(state, nodeId)
 
-
 	if (node.nodeType === 'branch') {
-		let children = getNodes(state, node.childIds).map(childNode => {
-			return getTree(state, childNode.id)
+		let children = node.childIds.map(childId => {
+			return getTree(state, childId, options)
 		})
 
-		if (sortChildren) {
-			children.sort(sortChildren)
+		if (options.sort) {
+			children.sort(options.sort)
 		}
 
 		node = {
@@ -149,7 +148,9 @@ export const getTree = minArity(2, (state, nodeId, sortChildren) => {
 		}
 	}
 
-	return deleteProperties(node, ['childIds', 'parentId'])
+	return options.project ?
+		options.project(node) :
+		deleteProperties(node, ['childIds', 'parentId'])
 })
 
 /**
