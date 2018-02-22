@@ -51,6 +51,11 @@ beforeEach(() => {
 								label: 'node222',
 								nodePathName: 'node222',
 								nodeType: 'leaf',
+							},
+							{
+								label: 'strange-label-node',
+								nodePathName: 'node223',
+								nodeType: 'leaf',
 							}
 						],
 					},
@@ -144,7 +149,7 @@ describe('getAncestorIds(state, nodeId)', () => {
 	})
 })
 
-describe('getTree(state, nodeId)', () => {
+describe('getTree(state, nodeId, sortChildren)', () => {
 	test('should return the node tree in nested format', () => {
 		let nodeTree = getTree(D.state, D.nodesByLabel['node22'].id)
 
@@ -154,6 +159,57 @@ describe('getTree(state, nodeId)', () => {
 			nodePathName: 'node22',
 			nodeType: 'branch',
 			children: [
+				{
+					id: D.nodesByLabel['node221'].id,
+					label: 'node221',
+					nodePathName: 'node221',
+					nodeType: 'leaf',
+				},
+				{
+					id: D.nodesByLabel['node222'].id,
+					label: 'node222',
+					nodePathName: 'node222',
+					nodeType: 'leaf',
+				},
+				{
+					id: D.nodesByLabel['strange-label-node'].id,
+					label: 'strange-label-node',
+					nodePathName: 'node223',
+					nodeType: 'leaf',
+				}
+			],
+		})
+	})
+
+	test('should allow specifying children sorting function as third argument', () => {
+		let nodeTree = getTree(
+			D.state,
+			D.nodesByLabel['node22'].id,
+			(nodeA, nodeB) => {
+				if (nodeA.label === 'strange-label-node') {
+					console.log('RETURN -1')
+					return -1
+				} else if (nodeB.label === 'strange-label-node') {
+					console.log('RETURN 1')
+					return 1
+				} else {
+					return 0
+				}
+			}
+		)
+
+		expect(nodeTree).toEqual({
+			id: D.nodesByLabel['node22'].id,
+			label: 'node22',
+			nodePathName: 'node22',
+			nodeType: 'branch',
+			children: [
+				{
+					id: D.nodesByLabel['strange-label-node'].id,
+					label: 'strange-label-node',
+					nodePathName: 'node223',
+					nodeType: 'leaf',
+				},
 				{
 					id: D.nodesByLabel['node221'].id,
 					label: 'node221',

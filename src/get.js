@@ -130,16 +130,22 @@ export const getAllNodes = pipeState(getAllNodeIds, getNodes)
  * @param  {[type]} nodeId [description]
  * @return {[type]}        [description]
  */
-export const getTree = strictArity((state, nodeId) => {
+export const getTree = minArity(2, (state, nodeId, sortChildren) => {
 	let node = getNode(state, nodeId)
 
 
 	if (node.nodeType === 'branch') {
+		let children = getNodes(state, node.childIds).map(childNode => {
+			return getTree(state, childNode.id)
+		})
+
+		if (sortChildren) {
+			children.sort(sortChildren)
+		}
+
 		node = {
 			...node,
-			children: getNodes(state, node.childIds).map(childNode => {
-				return getTree(state, childNode.id)
-			})
+			children: children
 		}
 	}
 
