@@ -182,10 +182,9 @@ export const getAbsoluteNodePath = (state, nodeId) => {
 	let root = getNode(state, state.rootId)
 
 	if (nodeId === state.rootId) {
-		return root.nodeRootPath ? root.nodeRootPath : ''
+		return '/'
 	} else {
-		let pre = root.nodeRootPath ? `${root.nodeRootPath}/` : ''
-		return pre + getNodePath(state, state.rootId, nodeId)
+		return '/' + getNodePath(state, state.rootId, nodeId)
 	}
 }
 
@@ -222,6 +221,10 @@ export const getNodeByPath = strictArity((state, sourceNodeId, path) => {
 })
 export const getNodeIdByPath = pipeState(getNodeByPath, (state, node) => {
 	return node ? node.id : null
+})
+
+export const getNodeByAbsolutePath = strictArity((state, path) => {
+	return getNodeByPath(state, state.rootId, path)
 })
 
 /**

@@ -19,7 +19,6 @@ let D = {
 beforeEach(() => {
 	let treeData = {
 		label: 'root',
-		nodeRootPath: 'path/to/root',
 		nodeType: 'branch',
 		children: [
 			{
@@ -329,24 +328,20 @@ describe('getNodePath(state, sourceNodeId, nodeId)', () => {
 })
 
 describe('getAbsoluteNodePath(state, nodeId)', () => {
-	test('should return an absolute path, taking into consideration the rootNode\'s nodeRootPath prop', () => {
+	test('should return an absolute path starting with the forward slash (/)', () => {
 		expect(tree.getAbsoluteNodePath(
 			D.state, 
 			D.nodesByLabel['node222'].id
 		))
-		.toEqual('path/to/root/node2/node22/node222')
+		.toEqual('/node2/node22/node222')
 	})
 
-	test('if the root node has no nodeRootPath, the nodeRootPath should not be prepended', () => {
-		let root = tree.model.root()
-		let node1 = tree.model.branch('node1')
-		let node11 = tree.model.leaf('node11')
-
-		let state = tree.setRoot(tree.defaultState(), root)
-		state = tree.addNode(state, root.id, node1)
-		state = tree.addNode(state, node1.id, node11)
-
-		expect(tree.getAbsoluteNodePath(state, node11.id)).toEqual('node1/node11')
+	test('if the nodeId corresponds to the root node itself, return only a forward slash (/) indicating it is the root node', () => {
+		expect(tree.getAbsoluteNodePath(
+			D.state,
+			D.nodesByLabel['root'].id
+		))
+		.toEqual('/')
 	})
 })
 

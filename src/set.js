@@ -43,23 +43,23 @@ export const setRoot = strictArity((state, root) => {
 })
 
 /**
- * Adds a nodeSpec to the tree.
- * The nodeSpec must have already been formatted by the model
+ * Adds a node to the tree.
+ * The node must have already been formatted by the model
  */
-export const addNode = strictArity((state, parentId, nodeSpec) => {
-	const { id } = nodeSpec
+export const addNode = strictArity((state, parentId, node) => {
+	const { id } = node
 	let parentNode = getNode(state, parentId)
 	let siblings = getNodes(state, parentNode.childIds)
 
-	if (siblings.some(sibling => sibling.nodePathName === nodeSpec.nodePathName)) {
-		throw new Error(`Duplicated nodePathName '${nodeSpec.nodePathName}'`)
+	if (siblings.some(sibling => sibling.nodePathName === node.nodePathName)) {
+		throw new Error(`Duplicated nodePathName '${node.nodePathName}'`)
 	}
 
 	return computeProperty(state, 'byId', (byId) => {
 		return {
 			...byId,
 			[id]: {
-				...nodeSpec,
+				...node,
 				parentId: parentId,
 			},
 			[parentId]: {
@@ -73,12 +73,12 @@ export const addNode = strictArity((state, parentId, nodeSpec) => {
 	})
 })
 
-export const addNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec) => {
-	return addNode(state, getNodeIdByPath(state, sourceNodeId, path), nodeSpec)
+export const addNodeAtPath = strictArity((state, sourceNodeId, parentNodePath, node) => {
+	return addNode(state, getNodeIdByPath(state, sourceNodeId, parentNodePath), node)
 })
 
-export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec) => {
-	let nodePathNames = Array.isArray(path) ? path : splitNodePath(path)
+export const ensureNodeAtPath = strictArity((state, sourceNodeId, parentNodePath, node) => {
+	let nodePathNames = Array.isArray(parentNodePath) ? parentNodePath : splitNodePath(parentNodePath)
 	let sourceNode = getNode(state, sourceNodeId)
 	let parentNode = sourceNode
 
@@ -95,8 +95,8 @@ export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec
 		}
 	}
 
-	if (!getChild(state, parentNode.id, nodeSpec.nodePathName)) {
-		state = addNode(state, parentNode.id, nodeSpec)
+	if (!getChild(state, parentNode.id, node.nodePathName)) {
+		state = addNode(state, parentNode.id, node)
 	}
 
 	return state
@@ -105,9 +105,9 @@ export const ensureNodeAtPath = strictArity((state, sourceNodeId, path, nodeSpec
 /**
  * 
  */
-export const addNodes = strictArity((state, nodeSpecs) => {
-	return nodeSpecs.reduce((state, nodeSpec) => {
-		const { parentId, ...spec } = nodeSpec
+export const addNodes = strictArity((state, nodes) => {
+	return nodes.reduce((state, node) => {
+		const { parentId, ...spec } = node
 		return addNode(state, parentId, spec)
 	}, state)
 })

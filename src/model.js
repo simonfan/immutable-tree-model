@@ -9,11 +9,11 @@ const trimTrailingSlash = (str) => {
 /**
  * [description]
  * @param  {[type]} nodeRootPath [description]
- * @param  {[type]} spec         [description]
+ * @param  {[type]} nodeData         [description]
  * @return {[type]}              [description]
  */
-export const root = (nodeRootPath, spec) => ({
-	...spec,
+export const root = (nodeRootPath, nodeData) => ({
+	...nodeData,
 	nodeRootPath: trimTrailingSlash(nodeRootPath),
 	nodeType: 'branch',
 	id: generateId(),
@@ -25,11 +25,11 @@ export const root = (nodeRootPath, spec) => ({
  * [description]
  * @param  {[type]} parentId     [description]
  * @param  {[type]} nodePathName [description]
- * @param  {[type]} spec         [description]
+ * @param  {[type]} nodeData         [description]
  * @return {[type]}              [description]
  */
-export const branch = (nodePathName, spec) => ({
-	...spec,
+export const branch = (nodePathName, nodeData) => ({
+	...nodeData,
 	nodePathName,
 	nodeType: 'branch',
 	id: generateId(),
@@ -40,11 +40,11 @@ export const branch = (nodePathName, spec) => ({
  * [description]
  * @param  {[type]} parentId     [description]
  * @param  {[type]} nodePathName [description]
- * @param  {[type]} spec         [description]
+ * @param  {[type]} nodeData         [description]
  * @return {[type]}              [description]
  */
-export const leaf = (nodePathName, spec) => ({
-	...spec,
+export const leaf = (nodePathName, nodeData) => ({
+	...nodeData,
 	nodePathName,
 	nodeType: 'leaf',
 	id: generateId(),
@@ -62,13 +62,13 @@ const FLATTEN_DEFAULT_OPTIONS = {
  * @return {[type]}         [description]
  */
 export const flatten = minArity(1, (obj, options = {...FLATTEN_DEFAULT_OPTIONS}) => {
-	const { children, nodePathName, nodeRootPath, ...spec } = obj
+	const { children, nodePathName, nodeRootPath, ...nodeData } = obj
 	const { parentId } = options
 	let currentNode = parentId ?
 		branch(nodePathName, {
-			...spec,
+			...nodeData,
 			parentId: parentId
-		}) : root(nodeRootPath, spec)
+		}) : root(nodeRootPath, nodeData)
 
 	return children.reduce((acc, childObj) => {
 		const { nodePathName: childName, ...childSpec } = childObj
